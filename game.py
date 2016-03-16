@@ -10,7 +10,7 @@ keys = [False, False, False, False]
 playerpos = [100, 100]
 acc = [0,0]
 arrows = []
-badtimer = 300
+badtimer = 200
 badtimer1 = 0
 badguys = [[640,100,0]]
 healthvalue = 194
@@ -21,6 +21,8 @@ castle = pygame.image.load("resources/images/castle.png")
 arrow = pygame.image.load("resources/images/bullet1.png")
 badguyimg1 = pygame.image.load("resources/images/asteroid.png")
 badguyimg = badguyimg1
+healthbar = pygame.image.load("resources/images/healthbar.png")
+health = pygame.image.load("resources/images/health.png")
 while 1:
     badtimer -= 1
     screen.fill(0)
@@ -49,7 +51,7 @@ while 1:
         choice = random.choice([[640, random.randint(50, 430), 0], [random.randint(50, 590), 450, 1]])
         badguys.append(choice)
         print badguys[0]
-        badtimer=300-(badtimer1*2)
+        badtimer=200-(badtimer1*2)
         if badtimer1>=35:
             badtimer1=35
         else:
@@ -62,9 +64,15 @@ while 1:
             badguy[0] -= 2
         if badguy[2] == 1:
             badguy[1] -= 2
+        spacerect = pygame.Rect(playerrot.get_rect())
+        spacerect.top = playerpos1[1]
+        spacerect.left = playerpos1[0]
         badrect = pygame.Rect(badguyimg.get_rect())
         badrect.top=badguy[1]
         badrect.left=badguy[0]
+        if badrect.colliderect(spacerect):
+            healthvalue -= random.randint(15, 30)
+            badguys.pop(index)
         index1 = 0
         for bullet in arrows:
             bullrect = pygame.Rect(arrow.get_rect())
@@ -77,6 +85,14 @@ while 1:
         index += 1
     for badguy in badguys:
         screen.blit(badguyimg, (badguy[0],badguy[1]))
+    font = pygame.font.Font(None, 24)
+    survivedtext = font.render(str((90000-pygame.time.get_ticks())/60000)+":"+str((90000-pygame.time.get_ticks())/1000%60).zfill(2), True, (255,255,0))
+    textRect = survivedtext.get_rect()
+    textRect.topright=[635,5]
+    screen.blit(survivedtext, textRect)
+    screen.blit(healthbar, (5,5))
+    for health1 in range(healthvalue):
+        screen.blit(health, (health1+8,8))
     pygame.display.flip()
 
 
@@ -85,13 +101,14 @@ while 1:
             pygame.quit()
             exit(0)
         if event.type == pygame.KEYDOWN:
-            if event.key == K_w:
+            keyp = pygame.key.get_pressed()
+            if keyp[K_w]:
                 keys[0] = True
-            if event.key == K_a:
+            if keyp[K_a]:
                 keys[1] = True
-            if event.key == K_s:
+            if keyp[K_s]:
                 keys[2] = True
-            if event.key == K_d:
+            if keyp[K_d]:
                 keys[3] = True
         if event.type == pygame.KEYUP:
             if event.key == K_w:
@@ -108,9 +125,10 @@ while 1:
             arrows.append([math.atan2(position[1]-(playerpos1[1]+32),position[0]-(playerpos1[0]+26)),playerpos1[0]+32,playerpos1[1]+32])
     if keys[0]:
         playerpos[1] -= 5
-    elif keys[2]:
+    if keys[2]:
         playerpos[1] += 5
-    elif keys[1]:
+    if keys[1]:
         playerpos[0] -= 5
-    elif keys[3]:
+    if keys[3]:
         playerpos[0] += 5
+
