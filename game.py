@@ -62,6 +62,18 @@ while 1:
             badguy[0] -= 2
         if badguy[2] == 1:
             badguy[1] -= 2
+        badrect = pygame.Rect(badguyimg.get_rect())
+        badrect.top=badguy[1]
+        badrect.left=badguy[0]
+        index1 = 0
+        for bullet in arrows:
+            bullrect = pygame.Rect(arrow.get_rect())
+            bullrect.left = bullet[1]
+            bullrect.top = bullet[2]
+            if badrect.colliderect(bullrect):
+                badguys.pop(index)
+                arrows.pop(index1)
+            index1 += 1
         index += 1
     for badguy in badguys:
         screen.blit(badguyimg, (badguy[0],badguy[1]))
