@@ -10,12 +10,13 @@ keys = [False, False, False, False]
 playerpos = [100, 100]
 acc = [0,0]
 arrows = []
-badtimer = 200
+badtimer = 100
 badtimer1 = 0
 badguys = [[640,100,0]]
 healthvalue = 194
+pygame.mixer.init()
 
-player = pygame.image.load("resources/images/spaceship.png")
+player = pygame.image.load("resources/images/spaceship1.png")
 space = pygame.image.load("resources/images/space.jpg")
 castle = pygame.image.load("resources/images/castle.png")
 arrow = pygame.image.load("resources/images/bullet1.png")
@@ -25,6 +26,15 @@ healthbar = pygame.image.load("resources/images/healthbar.png")
 health = pygame.image.load("resources/images/health.png")
 gameover = pygame.image.load("resources/images/gameover.png")
 youwin = pygame.image.load("resources/images/youwin.png")
+hit = pygame.mixer.Sound("resources/audio/explode.wav")
+enemy = pygame.mixer.Sound("resources/audio/enemy.wav")
+shoot = pygame.mixer.Sound("resources/audio/shoot.wav")
+hit.set_volume(0.05)
+enemy.set_volume(0.05)
+shoot.set_volume(0.05)
+pygame.mixer.music.load('resources/audio/moonlight.mp3')
+pygame.mixer.music.play(-1, 0.0)
+pygame.mixer.music.set_volume(0.25)
 
 running = 1
 exitcode = 0
@@ -32,9 +42,6 @@ while running:
     badtimer -= 1
     screen.fill(0)
     screen.blit(space, (0, 0))
-    #for x in range(width/grass.get_width() + 1):
-        #for y in range(height/grass.get_height() + 1):
-            #screen.blit(grass, (x*100, y*100))
     position = pygame.mouse.get_pos()
     angle = math.atan2(position[1]- (playerpos[1] + 32), position[0] - (playerpos[0] + 26))
     playerrot = pygame.transform.rotate(player, 360 - angle*57.29)
@@ -42,8 +49,8 @@ while running:
     screen.blit(playerrot, playerpos1)
     for bullet in arrows:
         index=0
-        velx=math.cos(bullet[0])*7
-        vely=math.sin(bullet[0])*7
+        velx=math.cos(bullet[0])*5
+        vely=math.sin(bullet[0])*5
         bullet[1]+=velx
         bullet[2]+=vely
         if bullet[1]<-64 or bullet[1]>640 or bullet[2]<-64 or bullet[2]>480:
@@ -56,7 +63,7 @@ while running:
         choice = random.choice([[640, random.randint(50, 430), 0], [random.randint(50, 590), 450, 1]])
         badguys.append(choice)
         print badguys[0]
-        badtimer=200-(badtimer1*2)
+        badtimer=100-(badtimer1*2)
         if badtimer1>=35:
             badtimer1=35
         else:
@@ -76,6 +83,7 @@ while running:
         badrect.top=badguy[1]
         badrect.left=badguy[0]
         if badrect.colliderect(spacerect):
+            hit.play()
             healthvalue -= random.randint(15, 30)
             badguys.pop(index)
         index1 = 0
@@ -84,6 +92,7 @@ while running:
             bullrect.left = bullet[1]
             bullrect.top = bullet[2]
             if badrect.colliderect(bullrect):
+                enemy.play()
                 acc[0] += 1
                 badguys.pop(index)
                 arrows.pop(index1)
@@ -106,7 +115,12 @@ while running:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit(0)
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN or event.type == MOUSEBUTTONDOWN:
+            if event.type == MOUSEBUTTONDOWN:
+                shoot.play()
+                position = pygame.mouse.get_pos()
+                acc[1] += 1
+                arrows.append([math.atan2(position[1]-(playerpos1[1]+32),position[0]-(playerpos1[0]+26)),playerpos1[0]+32,playerpos1[1]+32])
             keyp = pygame.key.get_pressed()
             if keyp[K_w]:
                 keys[0] = True
@@ -125,18 +139,18 @@ while running:
                 keys[2] = False
             if event.key == K_d:
                 keys[3] = False
-        if event.type == MOUSEBUTTONDOWN:
-            position = pygame.mouse.get_pos()
-            acc[1] += 1
-            arrows.append([math.atan2(position[1]-(playerpos1[1]+32),position[0]-(playerpos1[0]+26)),playerpos1[0]+32,playerpos1[1]+32])
+        #if event.type == MOUSEBUTTONDOWN:
+            #position = pygame.mouse.get_pos()
+            #acc[1] += 1
+            #arrows.append([math.atan2(position[1]-(playerpos1[1]+32),position[0]-(playerpos1[0]+26)),playerpos1[0]+32,playerpos1[1]+32])
     if keys[0]:
-        playerpos[1] -= 5
+        playerpos[1] -= 2
     if keys[2]:
-        playerpos[1] += 5
+        playerpos[1] += 2
     if keys[1]:
-        playerpos[0] -= 5
+        playerpos[0] -= 2
     if keys[3]:
-        playerpos[0] += 5
+        playerpos[0] += 2
 
     if pygame.time.get_ticks()>=90000:
         running=0
