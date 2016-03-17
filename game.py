@@ -10,7 +10,7 @@ keys = [False, False, False, False]
 playerpos = [100, 100]
 acc = [0,0]
 arrows = []
-badtimer = 100
+badtimer = 125
 badtimer1 = 0
 badguys = [[640,100,0]]
 healthvalue = 194
@@ -18,14 +18,13 @@ pygame.mixer.init()
 
 player = pygame.image.load("resources/images/spaceship1.png")
 space = pygame.image.load("resources/images/space.jpg")
-castle = pygame.image.load("resources/images/castle.png")
 arrow = pygame.image.load("resources/images/bullet1.png")
 badguyimg1 = pygame.image.load("resources/images/asteroid.png")
 badguyimg = badguyimg1
 healthbar = pygame.image.load("resources/images/healthbar.png")
 health = pygame.image.load("resources/images/health.png")
-gameover = pygame.image.load("resources/images/gameover.png")
-youwin = pygame.image.load("resources/images/youwin.png")
+gameover = pygame.image.load("resources/images/gameover1.png")
+youwin = pygame.image.load("resources/images/youwin1.jpg")
 hit = pygame.mixer.Sound("resources/audio/explode.wav")
 enemy = pygame.mixer.Sound("resources/audio/enemy.wav")
 shoot = pygame.mixer.Sound("resources/audio/shoot.wav")
@@ -49,8 +48,8 @@ while running:
     screen.blit(playerrot, playerpos1)
     for bullet in arrows:
         index=0
-        velx=math.cos(bullet[0])*5
-        vely=math.sin(bullet[0])*5
+        velx=math.cos(bullet[0])*3
+        vely=math.sin(bullet[0])*3
         bullet[1]+=velx
         bullet[2]+=vely
         if bullet[1]<-64 or bullet[1]>640 or bullet[2]<-64 or bullet[2]>480:
@@ -60,10 +59,10 @@ while running:
             arrow1 = pygame.transform.rotate(arrow, 360-projectile[0]*57.29)
             screen.blit(arrow1, (projectile[1], projectile[2]))
     if badtimer==0:
-        choice = random.choice([[640, random.randint(50, 430), 0], [random.randint(50, 590), 450, 1]])
+        choice = random.choice([[640, random.randint(50, 430), 0], [random.randint(50, 590), 450, 1], [0, random.randint(50, 430), 2], [640, random.randint(50, 430), 3], [0, random.randint(50, 430), 4], [random.randint(50, 590), 480, 5]])
         badguys.append(choice)
         print badguys[0]
-        badtimer=100-(badtimer1*2)
+        badtimer=125-(badtimer1*2)
         if badtimer1>=35:
             badtimer1=35
         else:
@@ -72,9 +71,24 @@ while running:
     for badguy in badguys:
         if badguy[0]<-64:
             badguys.pop(index)
+        if badguy[0]>704:
+            badguys.pop(index)
+        if badguy[1]<-64:
+            badguys.pop(index)
         if badguy[2] == 0:
             badguy[0] -= 2
         if badguy[2] == 1:
+            badguy[1] -= 2
+        if badguy[2] == 2:
+            badguy[0] += 2
+        if badguy[2] == 3:
+            badguy[0] -= 2
+            badguy[1] += 1
+        if badguy[2] == 4:
+            badguy[0] += 2
+            badguy[1] -= 1
+        if badguy[2] == 5:
+            badguy[0] += 2
             badguy[1] -= 2
         spacerect = pygame.Rect(playerrot.get_rect())
         spacerect.top = playerpos1[1]
@@ -145,12 +159,20 @@ while running:
             #arrows.append([math.atan2(position[1]-(playerpos1[1]+32),position[0]-(playerpos1[0]+26)),playerpos1[0]+32,playerpos1[1]+32])
     if keys[0]:
         playerpos[1] -= 2
+        if playerpos[1] <= 0:
+            playerpos[1] += 480
     if keys[2]:
         playerpos[1] += 2
+        if playerpos[1] >= 480:
+            playerpos[1] -= 480
     if keys[1]:
         playerpos[0] -= 2
+        if playerpos[0] <= 0:
+            playerpos[0] += 640
     if keys[3]:
         playerpos[0] += 2
+        if playerpos[0] >= 640:
+            playerpos[0] -= 640
 
     if pygame.time.get_ticks()>=90000:
         running=0
@@ -165,19 +187,19 @@ while running:
 if exitcode==0:
     pygame.font.init()
     font = pygame.font.Font(None, 24)
-    text = font.render("Accuracy: "+str(accuracy)+"%", True, (255,0,0))
+    text = font.render("Accuracy: "+str(accuracy)+"%", True, (255,255,255))
     textRect = text.get_rect()
     textRect.centerx = screen.get_rect().centerx
-    textRect.centery = screen.get_rect().centery+24
+    textRect.centery = screen.get_rect().centery+155
     screen.blit(gameover, (0,0))
     screen.blit(text, textRect)
 else:
     pygame.font.init()
     font = pygame.font.Font(None, 24)
-    text = font.render("Accuracy: "+str(accuracy)+"%", True, (0,255,0))
+    text = font.render("Accuracy: "+str(accuracy)+"%", True, (255,255,255))
     textRect = text.get_rect()
     textRect.centerx = screen.get_rect().centerx
-    textRect.centery = screen.get_rect().centery+24
+    textRect.centery = screen.get_rect().centery+155
     screen.blit(youwin, (0,0))
     screen.blit(text, textRect)
 while 1:
